@@ -650,7 +650,7 @@ export const useStore = create<StoreState>((set, get) => ({
 // Persist theme changes to localStorage
 useStore.subscribe(
   (state) => state.theme,
-  (theme: string) => {
+  (theme) => {
     localStorage.setItem('theme', theme);
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }
