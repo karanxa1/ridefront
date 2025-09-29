@@ -290,7 +290,7 @@ export const useStore = create<StoreState>((set, get) => ({
     }
     
     console.log('🔑 Using user.uid:', user.uid);
-    console.log('📊 User role:', user.role);
+    console.log('📊 User role:', (user as any).role);
     
     const requestData = {
       origin: {
@@ -323,9 +323,9 @@ export const useStore = create<StoreState>((set, get) => ({
     } catch (error) {
       console.error('💥 createRide error:', error);
       console.error('Error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        name: error instanceof Error ? error.name : 'Unknown'
       });
       throw error;
     }
@@ -650,7 +650,7 @@ export const useStore = create<StoreState>((set, get) => ({
 // Persist theme changes to localStorage
 useStore.subscribe(
   (state) => state.theme,
-  (theme) => {
+  (theme: string) => {
     localStorage.setItem('theme', theme);
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }
