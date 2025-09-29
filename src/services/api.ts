@@ -62,7 +62,7 @@ interface SubmitReviewRequest {
 }
 
 class ApiService {
-  private static readonly BASE_URL = 'http://localhost:8000';
+  private static readonly BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   private static authToken: string | null = null;
 
   // Set authentication token
