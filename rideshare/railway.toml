@@ -1,0 +1,17 @@
+[build]
+builder = "dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[environments.production]
+variables = [
+    { name = "FIREBASE_PROJECT_ID", generateValue = true },
+    { name = "FIREBASE_PRIVATE_KEY", generateValue = true },
+    { name = "FIREBASE_CLIENT_EMAIL", generateValue = true },
+    { name = "FIREBASE_STORAGE_BUCKET", generateValue = true },
+    { name = "MAPBOX_ACCESS_TOKEN", generateValue = true }
+]
