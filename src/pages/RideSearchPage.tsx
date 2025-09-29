@@ -27,10 +27,10 @@ export function RideSearchPage() {
   const { searchRides, availableRides, isLoading } = useStore();
   const navigate = useNavigate();
   const [filters, setFilters] = useState<RideSearchFilters>({
-    pickup_location: '',
-    destination: '',
-    departure_date: '',
-    departure_time: '',
+    pickup_location: undefined,
+    destination: undefined,
+    departure_date: undefined,
+    departure_time: undefined,
     seats_needed: 1,
     max_price: undefined
   });
@@ -109,7 +109,7 @@ export function RideSearchPage() {
         address = data.features[0].place_name;
       }
 
-      setFilters(prev => ({ ...prev, pickup_location: address }));
+      setFilters(prev => ({ ...prev, pickup_location: { lat: 0, lng: 0, address } }));
       setPickupQuery(address);
       toast.success('Location detected successfully!');
     } catch (error) {
@@ -229,13 +229,13 @@ export function RideSearchPage() {
       
       // Geocode pickup location
       const pickupResponse = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(filters.pickup_location)}.json?access_token=${mapboxToken}&limit=1`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(filters.pickup_location?.address || '')}.json?access_token=${mapboxToken}&limit=1`
       );
       const pickupData = await pickupResponse.json();
       
       // Geocode destination
       const destResponse = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(filters.destination)}.json?access_token=${mapboxToken}&limit=1`
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(filters.destination?.address || '')}.json?access_token=${mapboxToken}&limit=1`
       );
       const destData = await destResponse.json();
       
@@ -276,10 +276,10 @@ export function RideSearchPage() {
 
   const clearFilters = () => {
     setFilters({
-      pickup_location: '',
-      destination: '',
-      departure_date: '',
-      departure_time: '',
+      pickup_location: undefined,
+      destination: undefined,
+      departure_date: undefined,
+      departure_time: undefined,
       seats_needed: 1,
       max_price: undefined
     });
@@ -453,7 +453,7 @@ export function RideSearchPage() {
                   <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     type="date"
-                    value={filters.departure_date}
+                    value={filters.departure_date ? filters.departure_date.toISOString().split('T')[0] : ''}
                     onChange={(e) => handleFilterChange('departure_date', e.target.value)}
                     min={new Date().toISOString().split('T')[0]}
                     className="w-full pl-10 pr-4 py-4 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-2 focus:ring-white focus:border-transparent transition-colors"
@@ -469,7 +469,7 @@ export function RideSearchPage() {
                   <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     type="time"
-                    value={filters.departure_time}
+                    value={filters.departure_time ? filters.departure_time.toTimeString().split(' ')[0].slice(0, 5) : ''}
                     onChange={(e) => handleFilterChange('departure_time', e.target.value)}
                     className="w-full pl-10 pr-4 py-4 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-2 focus:ring-white focus:border-transparent transition-colors"
                   />

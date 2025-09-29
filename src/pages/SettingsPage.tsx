@@ -64,8 +64,10 @@ export function SettingsPage() {
   useEffect(() => {
     // Load user settings from store or API
     if (user?.settings) {
-      setNotifications(user.settings.notifications || notifications);
-      setPrivacy(user.settings.privacy || privacy);
+      if (typeof user.settings.notifications === 'object') {
+        setNotifications(user.settings.notifications);
+      }
+      setPrivacy(privacy); // Use default privacy settings
     }
   }, [user]);
 

@@ -9,6 +9,19 @@ export interface User {
   created_at: Date;
   updated_at: Date;
   fcm_token?: string;
+  phone?: string;
+  bio?: string;
+  location?: string;
+  emergency_contact?: string;
+  role?: 'driver' | 'passenger';
+  verified?: boolean;
+  total_ratings?: number;
+  total_rides?: number;
+  settings?: {
+    notifications: boolean;
+    theme: 'light' | 'dark' | 'system';
+    location_sharing: boolean;
+  };
 }
 
 export interface VehicleInfo {
@@ -30,16 +43,28 @@ export interface Location {
 // Ride types
 export interface Ride {
   ride_id: string;
+  id?: string;
   driver_id: string;
   origin: Location;
   destination: Location;
   departure_time: Date;
   seats_available: number;
+  available_seats?: number;
+  total_seats?: number;
   price_per_seat: number;
-  status: 'active' | 'cancelled' | 'completed';
+  status: 'active' | 'cancelled' | 'completed' | 'in_progress';
   created_at: Date;
   updated_at: Date;
   driver?: User;
+  passengers?: User[];
+  pickup_location?: {
+    address: string;
+    latitude: number;
+    longitude: number;
+  };
+  vehicle_info?: VehicleInfo;
+  driver_rating?: number;
+  description?: string;
 }
 
 // Booking types
@@ -78,9 +103,11 @@ export interface DriverLocation {
 
 export interface ChatMessage {
   message_id: string;
+  id?: string;
   ride_id: string;
   sender_id: string;
   message: string;
+  content?: string;
   sender_name: string;
   is_from_driver: boolean;
   timestamp: Date;
@@ -118,9 +145,12 @@ export interface RideSearchFilters {
   origin?: Location;
   destination?: Location;
   departure_date?: Date;
+  departure_time?: Date;
   min_seats?: number;
+  seats_needed?: number;
   max_price?: number;
   min_rating?: number;
+  pickup_location?: Location;
 }
 
 // Form types
@@ -177,5 +207,47 @@ export interface AppState {
   error: string | null;
 }
 
-// Explicit exports to ensure proper module resolution
-export type { Location, LoginCredentials, SignupCredentials, User };
+// Location data type
+export interface LocationData {
+  latitude: number;
+  longitude: number;
+  address: string;
+}
+
+// Place data type
+export interface PlaceData {
+  id: string;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+}
+
+// Ride offer response
+export interface RideOfferResponse {
+  ride_id: string;
+  driver_id: string;
+  origin: Location;
+  destination: Location;
+  departure_time: Date;
+  seats_available: number;
+  price_per_seat: number;
+  status: string;
+  driver: User;
+  vehicle_info?: VehicleInfo;
+}
+
+// Ride request response
+export interface RideRequestResponse {
+  request_id: string;
+  passenger_id: string;
+  origin: Location;
+  destination: Location;
+  departure_time: Date;
+  seats_needed: number;
+  max_price: number;
+  status: string;
+  passenger: User;
+}
+
+// Types are already exported above, no need for explicit re-exports

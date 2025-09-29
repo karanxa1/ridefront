@@ -230,7 +230,7 @@ export function ProfilePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <User className="h-4 w-4 inline mr-2" />
+                  <UserIcon className="h-4 w-4 inline mr-2" />
                   Full Name
                 </label>
                 {isEditing ? (

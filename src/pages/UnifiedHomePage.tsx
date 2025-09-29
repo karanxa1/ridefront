@@ -32,14 +32,35 @@ const UnifiedHomePage: React.FC = () => {
           // Get address from coordinates
           try {
             const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
+            
+            if (!mapboxToken || mapboxToken === 'undefined') {
+              console.warn('Mapbox token not found, using fallback address');
+              setCurrentLocation(prev => ({
+                ...prev!,
+                address: `Location (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`
+              }));
+              return;
+            }
+            
             const response = await fetch(
               `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxToken}`
             );
+            
+            if (!response.ok) {
+              throw new Error(`Mapbox API error: ${response.status} ${response.statusText}`);
+            }
+            
             const data = await response.json();
             if (data.features && data.features.length > 0) {
               setCurrentLocation(prev => ({
                 ...prev!,
                 address: data.features[0].place_name
+              }));
+            } else {
+              // Fallback if no features found
+              setCurrentLocation(prev => ({
+                ...prev!,
+                address: `Location (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`
               }));
             }
           } catch (error) {

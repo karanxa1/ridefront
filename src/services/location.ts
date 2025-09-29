@@ -41,7 +41,7 @@ class LocationService {
           
           try {
             // Get address from coordinates using our backend
-            const response = await ApiService.request('/api/v1/location/current-location', {
+            const response = await fetch('/api/v1/location/current-location', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -51,11 +51,13 @@ class LocationService {
                 longitude
               }),
             });
+            
+            const data = await response.json();
 
             this.currentLocation = {
               latitude,
               longitude,
-              address: response.address
+              address: data.address
             };
 
             resolve(this.currentLocation);
@@ -85,7 +87,7 @@ class LocationService {
 
   async searchPlaces(query: string, currentLocation?: LocationData): Promise<PlaceData[]> {
     try {
-      const response = await ApiService.request('/api/v1/location/search-places', {
+      const response = await fetch('/api/v1/location/search-places', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -97,7 +99,8 @@ class LocationService {
         }),
       });
 
-      return response;
+      const data = await response.json();
+      return data.data || [];
     } catch (error) {
       console.error('Error searching places:', error);
       return [];
@@ -106,7 +109,7 @@ class LocationService {
 
   async getNearbyPlaces(currentLocation: LocationData): Promise<PlaceData[]> {
     try {
-      const response = await ApiService.request('/api/v1/location/nearby-places', {
+      const response = await fetch('/api/v1/location/nearby-places', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -117,7 +120,8 @@ class LocationService {
         }),
       });
 
-      return response;
+      const data = await response.json();
+      return data.data || [];
     } catch (error) {
       console.error('Error getting nearby places:', error);
       return [];

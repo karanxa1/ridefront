@@ -44,7 +44,7 @@ export function LiveTrackingPage() {
   const [markers, setMarkers] = useState<any[]>([]);
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
   const [isTracking, setIsTracking] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
     initializeLocation();
@@ -87,7 +87,11 @@ export function LiveTrackingPage() {
   const requestLocationPermission = async () => {
     try {
       const location = await RealtimeLocationService.requestLocationPermission();
-      setCurrentLocation(location);
+      setCurrentLocation({
+        latitude: location.latitude,
+        longitude: location.longitude,
+        address: location.address || 'Current location'
+      });
       setMapCenter([location.longitude, location.latitude]);
       setIsLocationPermissionGranted(true);
       await getNearbyDrivers(location.latitude, location.longitude);

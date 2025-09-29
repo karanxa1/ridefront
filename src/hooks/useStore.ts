@@ -5,6 +5,8 @@ import ApiService from '../services/api';
 // Define types locally to avoid import issues
 interface User {
   uid: string;
+  id?: string;
+  user_id?: string;
   email: string;
   name: string;
   profile_pic?: string;
@@ -13,6 +15,19 @@ interface User {
   created_at: Date;
   updated_at: Date;
   fcm_token?: string;
+  phone?: string;
+  bio?: string;
+  location?: string;
+  emergency_contact?: string;
+  role?: 'driver' | 'passenger';
+  verified?: boolean;
+  total_ratings?: number;
+  total_rides?: number;
+  settings?: {
+    notifications: boolean;
+    theme: 'light' | 'dark' | 'system';
+    location_sharing: boolean;
+  };
 }
 
 interface VehicleInfo {
@@ -32,16 +47,28 @@ interface Location {
 
 interface Ride {
   ride_id: string;
+  id?: string;
   driver_id: string;
   origin: Location;
   destination: Location;
   departure_time: Date;
   seats_available: number;
+  available_seats?: number;
+  total_seats?: number;
   price_per_seat: number;
-  status: 'active' | 'cancelled' | 'completed';
+  status: 'active' | 'cancelled' | 'completed' | 'in_progress';
   created_at: Date;
   updated_at: Date;
   driver?: User;
+  passengers?: User[];
+  pickup_location?: {
+    address: string;
+    latitude: number;
+    longitude: number;
+  };
+  vehicle_info?: VehicleInfo;
+  driver_rating?: number;
+  description?: string;
 }
 
 interface Booking {
@@ -67,9 +94,11 @@ interface DriverLocation {
 
 interface ChatMessage {
   message_id: string;
+  id?: string;
   ride_id: string;
   sender_id: string;
   message: string;
+  content?: string;
   sender_name: string;
   is_from_driver: boolean;
   timestamp: Date;
@@ -108,7 +137,7 @@ interface ChatState {
 interface AppState {
   notifications: Notification[];
   isOnline: boolean;
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'system';
   mapViewport: {
     latitude: number;
     longitude: number;
@@ -124,6 +153,7 @@ interface StoreState extends AuthState, RideState, ChatState, AppState {
   setUser: (user: User | null) => void;
   setAuthLoading: (loading: boolean) => void;
   setAuthError: (error: string | null) => void;
+  updateProfile: (userData: Partial<User>) => Promise<void>;
   unsubscribe?: () => void;
   
   // Ride actions
@@ -136,6 +166,7 @@ interface StoreState extends AuthState, RideState, ChatState, AppState {
   getBooking: (bookingId: string) => Promise<Booking>;
   getUserBookings: (status?: string) => Promise<Booking[]>;
   availableRides: Ride[];
+  rides: Ride[];
   setCurrentRide: (ride: Ride | null) => void;
   setActiveBooking: (booking: Booking | null) => void;
   setNearbyDrivers: (drivers: DriverLocation[]) => void;
@@ -154,7 +185,7 @@ interface StoreState extends AuthState, RideState, ChatState, AppState {
   addNotification: (notification: Notification) => void;
   removeNotification: (id: string) => void;
   setOnlineStatus: (online: boolean) => void;
-  setTheme: (theme: 'light' | 'dark') => void;
+  setTheme: (theme: 'light' | 'dark' | 'system') => void;
   setMapViewport: (viewport: { latitude: number; longitude: number; zoom: number }) => void;
   
   // Initialize store
@@ -173,6 +204,7 @@ export const useStore = create<StoreState>((set, get) => ({
   nearbyDrivers: [],
   rideHistory: [],
   availableRides: [],
+  rides: [],
   isSearching: false,
   
   messages: [],
@@ -267,6 +299,20 @@ export const useStore = create<StoreState>((set, get) => ({
   setAuthLoading: (loading) => set({ isLoading: loading }),
   
   setAuthError: (error) => set({ error }),
+  
+  updateProfile: async (userData) => {
+    const { user } = get();
+    if (!user) throw new Error('User not authenticated');
+    
+    try {
+      const response = await ApiService.updateUser(user.uid, userData);
+      if (response.success && response.data) {
+        set({ user: { ...user, ...userData } });
+      }
+    } catch (error) {
+      throw error;
+    }
+  },
   
   // Ride actions
   createRide: async (rideData) => {
@@ -622,7 +668,7 @@ export const useStore = create<StoreState>((set, get) => ({
     window.addEventListener('offline', handleOffline);
     
     // Load theme from localStorage
-    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' | null;
     if (savedTheme) {
       set({ theme: savedTheme });
     }
@@ -648,10 +694,8 @@ export const useStore = create<StoreState>((set, get) => ({
 }));
 
 // Persist theme changes to localStorage
-useStore.subscribe(
-  (state) => state.theme,
-  (theme) => {
-    localStorage.setItem('theme', theme);
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-  }
-);
+useStore.subscribe((state) => {
+  const theme = state.theme;
+  localStorage.setItem('theme', theme);
+  document.documentElement.classList.toggle('dark', theme === 'dark');
+});

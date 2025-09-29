@@ -91,7 +91,7 @@ export function RideTrackingPage() {
   const [driverLocation, setDriverLocation] = useState<DriverLocation | null>(null);
   const [eta, setEta] = useState<string>('Calculating...');
   const [distance, setDistance] = useState<string>('--');
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -140,7 +140,7 @@ export function RideTrackingPage() {
   };
 
   const isDriver = ride && user && user.uid === ride.driver_id;
-  const isPassenger = ride && user && ride.passengers?.some(p => p.user_id === user.uid);
+  const isPassenger = ride && user && ride.passengers?.some(p => p.uid === user.uid);
 
   if (isLoading || !ride) {
     return (

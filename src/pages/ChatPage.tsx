@@ -74,11 +74,11 @@ export function ChatPage() {
   };
 
   const isDriver = ride && user && user.uid === ride.driver_id;
-  const isPassenger = ride && user && ride.passengers?.some(p => p.user_id === user.uid);
+  const isPassenger = ride && user && ride.passengers?.some(p => p.uid === user.uid);
   const otherParticipants = ride ? (
     isDriver 
       ? ride.passengers || []
-      : [{ user_id: ride.driver_id, name: ride.driver.name, profile_pic: ride.driver.profile_pic }]
+      : [{ uid: ride.driver_id, name: ride.driver.name, profile_pic: ride.driver.profile_pic }]
   ) : [];
 
   if (isLoading || !ride) {
@@ -208,14 +208,14 @@ export function ChatPage() {
             </div>
           ) : (
             messages.map((message) => {
-              const isOwnMessage = message.sender_id === user?.id;
+              const isOwnMessage = message.sender_id === user?.uid;
               const sender = message.sender_id === ride.driver_id 
                 ? ride.driver 
-                : ride.passengers?.find(p => p.user_id === message.sender_id);
+                : ride.passengers?.find(p => p.uid === message.sender_id);
               
               return (
                 <div
-                  key={message.id}
+                  key={message.message_id}
                   className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
                 >
                   <div className={`flex items-end space-x-2 max-w-xs lg:max-w-md ${
@@ -245,7 +245,7 @@ export function ChatPage() {
                       {!isOwnMessage && (
                         <p className="text-xs text-gray-500 mb-1">{sender?.name}</p>
                       )}
-                      <p className="text-sm">{message.content}</p>
+                      <p className="text-sm">{message.message}</p>
                       <p className={`text-xs mt-1 ${
                         isOwnMessage ? 'text-blue-100' : 'text-gray-500'
                       }`}>

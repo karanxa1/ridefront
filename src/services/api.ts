@@ -89,7 +89,7 @@ class ApiService {
   }
 
   // Generic API request method
-  private static async request<T>(
+  static async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {

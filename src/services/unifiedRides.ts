@@ -85,10 +85,16 @@ class UnifiedRidesService {
       current_longitude: currentLongitude.toString()
     });
 
-    return ApiService.request(`/api/v1/unified-rides/offer?${params}`, {
+    const response = await ApiService.request(`/api/v1/unified-rides/offer?${params}`, {
       method: 'POST',
       body: JSON.stringify(rideData)
     });
+    
+    return {
+      data: (response.data as any) || { ride_id: '', message: 'Ride offer created successfully' },
+      success: response.success || false,
+      message: response.message || 'Ride offer created successfully'
+    };
   }
 
   /**
@@ -106,10 +112,16 @@ class UnifiedRidesService {
       current_longitude: currentLongitude.toString()
     });
 
-    return ApiService.request(`/api/v1/unified-rides/request?${params}`, {
+    const response = await ApiService.request(`/api/v1/unified-rides/request?${params}`, {
       method: 'POST',
       body: JSON.stringify(rideData)
     });
+    
+    return {
+      data: (response.data as any) || { ride_id: '', message: 'Ride request created successfully' },
+      success: response.success || false,
+      message: response.message || 'Ride request created successfully'
+    };
   }
 
   /**
@@ -140,7 +152,15 @@ class UnifiedRidesService {
       params.append('max_price', maxPrice.toString());
     }
 
-    return ApiService.request(`/api/v1/unified-rides/offers?${params}`);
+    const response = await ApiService.request(`/api/v1/unified-rides/offers?${params}`);
+    
+    const data = response.data as any;
+    return {
+      rides: data?.rides || [],
+      total_count: data?.total_count || 0,
+      page: data?.page || 1,
+      limit: data?.limit || 20
+    };
   }
 
   /**
@@ -168,7 +188,15 @@ class UnifiedRidesService {
       limit: limit.toString()
     });
 
-    return ApiService.request(`/api/v1/unified-rides/requests?${params}`);
+    const response = await ApiService.request(`/api/v1/unified-rides/requests?${params}`);
+    
+    const data = response.data as any;
+    return {
+      rides: data?.rides || [],
+      total_count: data?.total_count || 0,
+      page: data?.page || 1,
+      limit: data?.limit || 20
+    };
   }
 
   /**
@@ -199,7 +227,15 @@ class UnifiedRidesService {
       params.append('status', status);
     }
 
-    return ApiService.request(`/api/v1/unified-rides/user/${userId}?${params}`);
+    const response = await ApiService.request(`/api/v1/unified-rides/user/${userId}?${params}`);
+    
+    const data = response.data as any;
+    return {
+      rides: data?.rides || [],
+      total_count: data?.total_count || 0,
+      page: data?.page || 1,
+      limit: data?.limit || 20
+    };
   }
 
   /**
@@ -214,10 +250,16 @@ class UnifiedRidesService {
       user_id: userId
     });
 
-    return ApiService.request(`/api/v1/unified-rides/${rideId}?${params}`, {
+    const response = await ApiService.request(`/api/v1/unified-rides/${rideId}?${params}`, {
       method: 'PUT',
       body: JSON.stringify(rideUpdate)
     });
+    
+    const data = response.data as any;
+    return {
+      message: response.message || 'Ride updated successfully',
+      updated_fields: data?.updated_fields || []
+    };
   }
 
   /**
@@ -231,9 +273,13 @@ class UnifiedRidesService {
       user_id: userId
     });
 
-    return ApiService.request(`/api/v1/unified-rides/${rideId}?${params}`, {
+    const response = await ApiService.request(`/api/v1/unified-rides/${rideId}?${params}`, {
       method: 'DELETE'
     });
+    
+    return {
+      message: response.message || 'Ride cancelled successfully'
+    };
   }
 }
 
