@@ -40,7 +40,7 @@ export default function MapViewPage() {
   useEffect(() => {
     if (map.current || !mapContainer.current) return; // Initialize map only once
 
-    mapboxgl.accessToken = 'pk.eyJ1Ijoia2FyYW54YSIsImEiOiJjbWcydnlkaTQwdHJ3MmtzNmU0ZjhtNjNhIn0.MefwJP2ybogMMLcAqNSegg';
+    mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -87,10 +87,10 @@ export default function MapViewPage() {
   const loadDrivers = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/v1/unified-rides/offers?destination_lat=18.5204&destination_lng=73.8567&max_distance=50&page=1&limit=100');
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/unified-rides/offers?destination_lat=18.5204&destination_lng=73.8567&max_distance=50&page=1&limit=100`);
       
       if (!response.ok) {
-        const fallbackResponse = await fetch('http://localhost:8000/api/v1/rides/');
+        const fallbackResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/rides/`);
         if (!fallbackResponse.ok) {
           throw new Error('Failed to load drivers');
         }

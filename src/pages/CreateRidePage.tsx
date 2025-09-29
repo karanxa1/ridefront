@@ -57,7 +57,7 @@ export function CreateRidePage() {
       const { latitude, longitude } = position.coords;
 
       // Get address from coordinates using Mapbox directly
-      const mapboxToken = 'pk.eyJ1Ijoia2FyYW54YSIsImEiOiJjbWcydnlkaTQwdHJ3MmtzNmU0ZjhtNjNhIn0.MefwJP2ybogMMLcAqNSegg';
+      const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
       const response = await fetch(
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxToken}`
       );
@@ -95,7 +95,7 @@ export function CreateRidePage() {
 
     setIsSearching(true);
     try {
-      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=pk.eyJ1Ijoia2FyYW54YSIsImEiOiJjbWcydnlkaTQwdHJ3MmtzNmU0ZjhtNjNhIn0.MefwJP2ybogMMLcAqNSegg&limit=5`;
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${import.meta.env.VITE_MAPBOX_TOKEN}&limit=5`;
       
       const response = await fetch(url);
       

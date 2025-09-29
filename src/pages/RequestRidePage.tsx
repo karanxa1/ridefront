@@ -47,7 +47,7 @@ const RequestRidePage: React.FC = () => {
           // Get address from coordinates
           try {
             const response = await fetch(
-              `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=pk.eyJ1Ijoia2FyYW54YSIsImEiOiJjbWcydnlkaTQwdHJ3MmtzNmU0ZjhtNjNhIn0.MefwJP2ybogMMLcAqNSegg`
+              `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${import.meta.env.VITE_MAPBOX_TOKEN}`
             );
             const data = await response.json();
             if (data.features && data.features.length > 0) {
@@ -115,7 +115,7 @@ const RequestRidePage: React.FC = () => {
     const timeout = setTimeout(async () => {
       setIsSearching(true);
       try {
-        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=pk.eyJ1Ijoia2FyYW54YSIsImEiOiJjbWcydnlkaTQwdHJ3MmtzNmU0ZjhtNjNhIn0.MefwJP2ybogMMLcAqNSegg&limit=5`;
+        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${import.meta.env.VITE_MAPBOX_TOKEN}&limit=5`;
         console.log('🌐 Fetching URL:', url);
         
         const response = await fetch(url);

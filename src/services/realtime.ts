@@ -62,7 +62,7 @@ class RealtimeLocationService {
     if (!this.userId) return;
 
     try {
-      const wsUrl = `ws://localhost:8000/api/v1/ws/location/${this.userId}`;
+      const wsUrl = `${import.meta.env.VITE_API_BASE_URL?.replace('http', 'ws')}/api/v1/ws/location/${this.userId}`;
       this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {

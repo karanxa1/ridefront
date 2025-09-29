@@ -5,13 +5,13 @@ import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCVVeldANUrehfGZhgXUR5aePapay3Xgsk",
-  authDomain: "durvesh-ff5c1.firebaseapp.com",
-  projectId: "durvesh-ff5c1",
-  storageBucket: "durvesh-ff5c1.firebasestorage.app",
-  messagingSenderId: "1055984089991",
-  appId: "1:1055984089991:web:375540eabd2ff233437122",
-  measurementId: "G-0B5K4SR72Z"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase

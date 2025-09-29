@@ -31,7 +31,7 @@ const UnifiedHomePage: React.FC = () => {
 
           // Get address from coordinates
           try {
-            const mapboxToken = 'pk.eyJ1Ijoia2FyYW54YSIsImEiOiJjbWcydnlkaTQwdHJ3MmtzNmU0ZjhtNjNhIn0.MefwJP2ybogMMLcAqNSegg';
+            const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
             const response = await fetch(
               `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxToken}`
             );

@@ -97,7 +97,7 @@ export function RideSearchPage() {
       const { latitude, longitude } = position.coords;
 
       // Get address from coordinates using Mapbox directly
-      const mapboxToken = 'pk.eyJ1Ijoia2FyYW54YSIsImEiOiJjbWcydnlkaTQwdHJ3MmtzNmU0ZjhtNjNhIn0.MefwJP2ybogMMLcAqNSegg';
+      const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
       const response = await fetch(
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxToken}`
       );
@@ -140,7 +140,7 @@ export function RideSearchPage() {
     const timeout = setTimeout(async () => {
       setIsSearchingPickup(true);
       try {
-        const mapboxToken = 'pk.eyJ1Ijoia2FyYW54YSIsImEiOiJjbWcydnlkaTQwdHJ3MmtzNmU0ZjhtNjNhIn0.MefwJP2ybogMMLcAqNSegg';
+        const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
         const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxToken}&limit=5`;
         
         const response = await fetch(url);
@@ -178,7 +178,7 @@ export function RideSearchPage() {
     const timeout = setTimeout(async () => {
       setIsSearchingDestination(true);
       try {
-        const mapboxToken = 'pk.eyJ1Ijoia2FyYW54YSIsImEiOiJjbWcydnlkaTQwdHJ3MmtzNmU0ZjhtNjNhIn0.MefwJP2ybogMMLcAqNSegg';
+        const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
         const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxToken}&limit=5`;
         
         const response = await fetch(url);
@@ -225,7 +225,7 @@ export function RideSearchPage() {
     
     try {
       // Geocode pickup location and destination to get coordinates
-      const mapboxToken = 'pk.eyJ1Ijoia2FyYW54YSIsImEiOiJjbWcydnlkaTQwdHJ3MmtzNmU0ZjhtNjNhIn0.MefwJP2ybogMMLcAqNSegg';
+      const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
       
       // Geocode pickup location
       const pickupResponse = await fetch(

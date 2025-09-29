@@ -37,7 +37,7 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
   useEffect(() => {
     if (map.current) return; // Initialize map only once
 
-    mapboxgl.accessToken = "pk.eyJ1Ijoia2FyYW54YSIsImEiOiJjbWcydnlkaTQwdHJ3MmtzNmU0ZjhtNjNhIn0.MefwJP2ybogMMLcAqNSegg";
+    mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
     if (mapContainer.current) {
       map.current = new mapboxgl.Map({
