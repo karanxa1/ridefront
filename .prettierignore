@@ -1,0 +1,52 @@
+# Dependencies
+node_modules
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+dist
+build
+.cache
+.vite
+.vercel
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs
+
+# Testing
+coverage
+.nyc_output
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated files
+*.min.js
+*.min.css
+
+# Documentation
+CHANGELOG.md
+
+# Config files that should not be formatted
+public/manifest.json
+tsconfig.json
+tsconfig.*.json
+
+# Markdown that should not be reformatted
+PROJECT_RESEARCH_REFERENCES.md
+apidocs.md

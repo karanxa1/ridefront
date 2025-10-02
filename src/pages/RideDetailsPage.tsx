@@ -13,8 +13,8 @@ import {
   Calendar,
   IndianRupee,
   AlertCircle,
-  CheckCircle,
-  Navigation
+  Navigation,
+  CheckCircle
 } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -28,7 +28,7 @@ export function RideDetailsPage() {
   const { user, getRideById, bookRide, isLoading } = useStore();
   const [ride, setRide] = useState<Ride | null>(null);
   const [seatsToBook, setSeatsToBook] = useState(1);
-  const [showBookingForm, setShowBookingForm] = useState(false);
+  const [_showBookingForm, _setShowBookingForm] = useState(false);
   const [bookingLoading, setBookingLoading] = useState(false);
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export function RideDetailsPage() {
     
     setBookingLoading(true);
     try {
-      await bookRide(ride.id, seatsToBook);
+      await bookRide(ride.id || ride.ride_id, seatsToBook);
       toast.success('Ride booked successfully!');
       navigate('/history');
     } catch (error) {
@@ -62,7 +62,7 @@ export function RideDetailsPage() {
     }
   };
 
-  const canBook = ride && user && user.uid !== ride.driver_id && ride.status === 'active' && ride.available_seats >= seatsToBook;
+  const canBook = ride && user && user.uid !== ride.driver_id && ride.status === 'active' && (ride.available_seats || ride.seats_available || 0) >= seatsToBook;
   const isDriver = ride && user && user.uid === ride.driver_id;
   const totalPrice = ride ? ride.price_per_seat * seatsToBook : 0;
 
@@ -107,7 +107,7 @@ export function RideDetailsPage() {
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">Pickup Location</p>
-                    <p className="text-gray-600">{ride.pickup_location.address}</p>
+                    <p className="text-gray-600">{ride.pickup_location?.address || 'Pickup location'}</p>
                   </div>
                 </div>
                 
@@ -182,10 +182,10 @@ export function RideDetailsPage() {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Driver</h2>
               
               <div className="flex items-center space-x-4">
-                {ride.driver.profile_pic ? (
+                {ride.driver?.profile_pic ? (
                   <img
                     src={ride.driver.profile_pic}
-                    alt={ride.driver.name}
+                    alt={ride.driver?.name || 'Driver'}
                     className="h-16 w-16 rounded-full object-cover"
                   />
                 ) : (
@@ -195,7 +195,7 @@ export function RideDetailsPage() {
                 )}
                 
                 <div className="flex-1">
-                  <h3 className="text-lg font-medium text-gray-900">{ride.driver.name}</h3>
+                  <h3 className="text-lg font-medium text-gray-900">{ride.driver?.name || 'Driver'}</h3>
                   <div className="flex items-center mt-1">
                     <Star className="h-4 w-4 text-yellow-400 mr-1" />
                     <span className="text-sm text-gray-600">
@@ -203,7 +203,7 @@ export function RideDetailsPage() {
                     </span>
                   </div>
                   <p className="text-sm text-gray-600 mt-1">
-                    Member since {new Date(ride.driver.created_at).getFullYear()}
+                    Member since {ride.driver?.created_at ? new Date(ride.driver.created_at).getFullYear() : 'Unknown'}
                   </p>
                 </div>
                 
@@ -233,10 +233,10 @@ export function RideDetailsPage() {
                 </div>
                 <div>
                   <p className="font-medium text-gray-900">
-                    {ride.vehicle_info.year} {ride.vehicle_info.make} {ride.vehicle_info.model}
+                    {ride.vehicle_info?.year} {ride.vehicle_info?.make} {ride.vehicle_info?.model}
                   </p>
                   <p className="text-sm text-gray-600">
-                    {ride.vehicle_info.color} • {ride.vehicle_info.license_plate}
+                    {ride.vehicle_info?.color} • {ride.vehicle_info?.license_plate}
                   </p>
                 </div>
               </div>
@@ -268,7 +268,7 @@ export function RideDetailsPage() {
                       onChange={(e) => setSeatsToBook(parseInt(e.target.value))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      {Array.from({ length: Math.min(ride.available_seats, 4) }, (_, i) => i + 1).map(num => (
+                      {Array.from({ length: Math.min(ride.available_seats || ride.seats_available || 0, 4) }, (_, i) => i + 1).map(num => (
                         <option key={num} value={num}>
                           {num} seat{num > 1 ? 's' : ''}
                         </option>

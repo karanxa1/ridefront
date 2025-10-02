@@ -2,18 +2,16 @@
 User management endpoints
 """
 
-from typing import Any, Dict
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Any
+from fastapi import APIRouter, HTTPException, status
 from firebase_admin import firestore
 
-from app.core.firebase import get_firestore_client
-from app.models.user import UserUpdate, UserProfile, VehicleInfo
-from app.core.exceptions import UserNotFoundException
+from ....core.firebase import get_firestore_client
 
 router = APIRouter()
 
 
-@router.get("/{user_id}", response_model=UserProfile)
+@router.get("/{user_id}")
 async def get_user_profile(user_id: str):
     """Get user profile by ID"""
     try:
@@ -22,35 +20,38 @@ async def get_user_profile(user_id: str):
 
         if not user_doc.exists:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
             )
 
         user_data = user_doc.to_dict()
 
-        return UserProfile(
-            uid=user_id,
-            email=user_data["email"],
-            name=user_data["name"],
-            role=user_data["role"],
-            profile_pic=user_data.get("profile_pic"),
-            rating=user_data.get("rating", 0.0),
-            created_at=str(user_data.get("created_at")),
-            updated_at=str(user_data.get("updated_at", user_data.get("created_at"))),
-            vehicle_info=user_data.get("vehicle_info")
-        )
+        # Simple response with available fields
+        # Handle both old users (with role) and new users (without role)
+        profile_data = {
+            "uid": user_id,
+            "email": user_data.get("email", ""),
+            "name": user_data.get("name", ""),
+            "phone": user_data.get("phone", ""),
+            "profile_pic": user_data.get("profile_pic", ""),
+            "rating": user_data.get("rating", 0.0),
+            "created_at": str(user_data.get("created_at", "")),
+        }
+
+        # If old user has role field, we can ignore it or migrate it
+        # For now, we just return the profile without role
+        return profile_data
 
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get user profile: {str(e)}"
+            detail=f"Failed to get user profile: {str(e)}",
         )
 
 
-@router.put("/{user_id}", response_model=Dict[str, Any])
-async def update_user_profile(user_id: str, user_update: UserUpdate):
+@router.put("/{user_id}")
+async def update_user_profile(user_id: str, user_update: dict):
     """Update user profile"""
     try:
         db = get_firestore_client()
@@ -58,19 +59,11 @@ async def update_user_profile(user_id: str, user_update: UserUpdate):
 
         if not user_doc.exists:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
             )
 
-        # Prepare update data
-        update_data = {}
-        if user_update.name is not None:
-            update_data["name"] = user_update.name
-        if user_update.profile_pic is not None:
-            update_data["profile_pic"] = user_update.profile_pic
-        if user_update.vehicle_info is not None:
-            update_data["vehicle_info"] = user_update.vehicle_info.dict()
-
+        # Prepare update data (only update provided fields)
+        update_data = {k: v for k, v in user_update.items() if v is not None}
         update_data["updated_at"] = firestore.SERVER_TIMESTAMP
 
         # Update user document
@@ -78,7 +71,7 @@ async def update_user_profile(user_id: str, user_update: UserUpdate):
 
         return {
             "message": "Profile updated successfully",
-            "updated_fields": list(update_data.keys())
+            "updated_fields": list(update_data.keys()),
         }
 
     except HTTPException:
@@ -86,7 +79,7 @@ async def update_user_profile(user_id: str, user_update: UserUpdate):
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update profile: {str(e)}"
+            detail=f"Failed to update profile: {str(e)}",
         )
 
 
@@ -117,13 +110,17 @@ async def get_user_reviews(user_id: str, page: int = 1, limit: int = 20):
             review_data["review_id"] = review_doc.id
 
             # Get reviewer name
-            reviewer_doc = db.collection("users").document(review_data["reviewer_id"]).get()
+            reviewer_doc = (
+                db.collection("users").document(review_data["reviewer_id"]).get()
+            )
             if reviewer_doc.exists:
                 reviewer_data = reviewer_doc.to_dict()
                 review_data["reviewer_name"] = reviewer_data.get("name", "Unknown")
 
             # Get reviewee name
-            reviewee_doc = db.collection("users").document(review_data["reviewee_id"]).get()
+            reviewee_doc = (
+                db.collection("users").document(review_data["reviewee_id"]).get()
+            )
             if reviewee_doc.exists:
                 reviewee_data = reviewee_doc.to_dict()
                 review_data["reviewee_name"] = reviewee_data.get("name", "Unknown")
@@ -139,13 +136,13 @@ async def get_user_reviews(user_id: str, page: int = 1, limit: int = 20):
             "average_rating": average_rating,
             "total_reviews": review_count,
             "page": page,
-            "limit": limit
+            "limit": limit,
         }
 
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get user reviews: {str(e)}"
+            detail=f"Failed to get user reviews: {str(e)}",
         )
 
 
@@ -160,14 +157,18 @@ async def get_user_rides(user_id: str, role: str = None, status: str = None):
             rides_query = db.collection("rides").where("driver_id", "==", user_id)
         else:
             # Get rides where user has bookings
-            bookings_query = db.collection("bookings").where("passenger_id", "==", user_id)
+            bookings_query = db.collection("bookings").where(
+                "passenger_id", "==", user_id
+            )
             bookings_docs = bookings_query.get()
 
             ride_ids = [booking.to_dict()["ride_id"] for booking in bookings_docs]
             if not ride_ids:
                 return {"rides": [], "total_count": 0}
 
-            rides_query = db.collection("rides").where("ride_id", "in", ride_ids[:10])  # Limit to 10
+            rides_query = db.collection("rides").where(
+                "ride_id", "in", ride_ids[:10]
+            )  # Limit to 10
 
         # Apply status filter if provided
         if status:
@@ -188,13 +189,10 @@ async def get_user_rides(user_id: str, role: str = None, status: str = None):
 
             rides.append(ride_data)
 
-        return {
-            "rides": rides,
-            "total_count": len(rides)
-        }
+        return {"rides": rides, "total_count": len(rides)}
 
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get user rides: {str(e)}"
+            detail=f"Failed to get user rides: {str(e)}",
         )

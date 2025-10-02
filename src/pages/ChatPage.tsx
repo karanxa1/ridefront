@@ -78,7 +78,7 @@ export function ChatPage() {
   const otherParticipants = ride ? (
     isDriver 
       ? ride.passengers || []
-      : [{ uid: ride.driver_id, name: ride.driver.name, profile_pic: ride.driver.profile_pic }]
+      : [{ uid: ride.driver_id, name: ride.driver?.name || 'Driver', profile_pic: ride.driver?.profile_pic }]
   ) : [];
 
   if (isLoading || !ride) {
@@ -121,10 +121,10 @@ export function ChatPage() {
               <div className="ml-6 flex items-center space-x-3">
                 {otherParticipants.length === 1 ? (
                   <>
-                    {otherParticipants[0].profile_pic ? (
+                    {otherParticipants[0]?.profile_pic ? (
                       <img
-                        src={otherParticipants[0].profile_pic}
-                        alt={otherParticipants[0].name}
+                        src={otherParticipants[0]?.profile_pic}
+                        alt={otherParticipants[0]?.name}
                         className="h-8 w-8 rounded-full object-cover"
                       />
                     ) : (
@@ -133,7 +133,7 @@ export function ChatPage() {
                       </div>
                     )}
                     <div>
-                      <h1 className="text-lg font-semibold text-gray-900">{otherParticipants[0].name}</h1>
+                      <h1 className="text-lg font-semibold text-gray-900">{otherParticipants[0]?.name}</h1>
                       <p className="text-sm text-gray-500">
                         {isDriver ? 'Passenger' : 'Driver'}
                       </p>
@@ -182,7 +182,7 @@ export function ChatPage() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2 text-sm text-blue-700">
               <MapPin className="h-4 w-4" />
-              <span className="font-medium">{ride.pickup_location.address}</span>
+              <span className="font-medium">{ride.pickup_location?.address || 'Pickup location'}</span>
               <span>→</span>
               <span className="font-medium">{ride.destination.address}</span>
             </div>

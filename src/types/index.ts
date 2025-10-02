@@ -3,20 +3,20 @@ export interface User {
   uid: string;
   email: string;
   name: string;
+  phone?: string;
   profile_pic?: string;
   vehicle_info?: VehicleInfo;
   rating: number;
   created_at: Date;
   updated_at: Date;
   fcm_token?: string;
-  phone?: string;
   bio?: string;
   location?: string;
   emergency_contact?: string;
-  role?: 'driver' | 'passenger';
   verified?: boolean;
   total_ratings?: number;
-  total_rides?: number;
+  total_rides_offered?: number;
+  total_rides_taken?: number;
   settings?: {
     notifications: boolean;
     theme: 'light' | 'dark' | 'system';
@@ -73,7 +73,7 @@ export interface Booking {
   ride_id: string;
   passenger_id: string;
   seats_booked: number;
-  status: 'pending' | 'confirmed' | 'cancelled';
+  status: 'pending' | 'accepted' | 'rejected' | 'cancelled';
   created_at: Date;
   updated_at: Date;
   ride?: Ride;
@@ -129,7 +129,7 @@ export interface SignupCredentials {
   email: string;
   password: string;
   name: string;
-  role: 'driver' | 'passenger';
+  phone: string;
 }
 
 // API Response types
@@ -248,6 +248,49 @@ export interface RideRequestResponse {
   max_price: number;
   status: string;
   passenger: User;
+}
+
+// Booking types
+export interface Booking {
+  booking_id: string;
+  ride_id: string;
+  passenger_id: string;
+  driver_id: string;
+  seats_booked: number;
+  status: 'pending' | 'accepted' | 'rejected' | 'cancelled';
+  passenger_message?: string;
+  driver_message?: string;
+  pickup_location?: {
+    lat: number;
+    lng: number;
+    address?: string;
+  };
+  created_at: Date;
+  updated_at: Date;
+  accepted_at?: Date;
+  rejected_at?: Date;
+  cancelled_at?: Date;
+  cancelled_by?: string;
+  passenger_name?: string;
+  passenger_phone?: string;
+  passenger_rating?: number;
+}
+
+export interface BookingRequest {
+  ride_id: string;
+  passenger_id: string;
+  seats_requested: number;
+  pickup_location?: {
+    lat: number;
+    lng: number;
+    address?: string;
+  };
+  message?: string;
+}
+
+export interface BookingAction {
+  action: 'accept' | 'reject' | 'cancel';
+  message?: string;
 }
 
 // Types are already exported above, no need for explicit re-exports

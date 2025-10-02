@@ -1,0 +1,74 @@
+# EditorConfig helps maintain consistent coding styles across different editors and IDEs
+# Learn more at https://editorconfig.org
+
+# Top-most EditorConfig file
+root = true
+
+# Universal settings for all files
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# TypeScript and JavaScript files
+[*.{ts,tsx,js,jsx,mjs,cjs}]
+indent_style = space
+indent_size = 2
+max_line_length = 100
+quote_type = single
+
+# JSON files
+[*.json]
+indent_size = 2
+insert_final_newline = false
+
+# YAML files
+[*.{yml,yaml}]
+indent_size = 2
+
+# Markdown files
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = 80
+
+# HTML files
+[*.html]
+indent_size = 2
+
+# CSS, SCSS, and related files
+[*.{css,scss,sass,less}]
+indent_size = 2
+
+# Configuration files
+[{package.json,.prettierrc,.eslintrc,.babelrc}]
+indent_size = 2
+
+# Shell scripts
+[*.sh]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+
+# Makefiles
+[Makefile]
+indent_style = tab
+
+# Python files (if any)
+[*.py]
+indent_size = 4
+
+# Docker files
+[Dockerfile*]
+indent_size = 2
+
+# Environment files
+[.env*]
+insert_final_newline = false
+trim_trailing_whitespace = false
+
+# Git configuration
+[.gitconfig]
+indent_style = tab

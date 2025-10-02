@@ -24,7 +24,7 @@ interface MapComponentProps {
 
 export function MapComponent({
   center,
-  zoom = 13,
+  zoom: _zoom = 13,
   markers = [],
   route = [],
   onLocationSelect,

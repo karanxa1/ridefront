@@ -18,7 +18,7 @@ interface SignupRequest {
   email: string;
   password: string;
   name: string;
-  role: 'passenger' | 'driver';
+  phone: string;
 }
 
 interface CreateRideRequest {
@@ -89,12 +89,9 @@ class ApiService {
   }
 
   // Generic API request method
-  static async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<ApiResponse<T>> {
+  static async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     const url = `${this.BASE_URL}${endpoint}`;
-    
+
     const config: RequestInit = {
       headers: this.getHeaders(),
       ...options,
@@ -113,18 +110,18 @@ class ApiService {
           bodyForLogging = config.body;
         }
       }
-      
+
       console.log('📋 Request config:', {
         method: config.method || 'GET',
         headers: config.headers,
-        body: bodyForLogging
+        body: bodyForLogging,
       });
-      
+
       const response = await fetch(url, config);
-      
+
       console.log('📡 Response status:', response.status, response.statusText);
       console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
-      
+
       if (!response.ok) {
         let errorData;
         try {
@@ -135,25 +132,29 @@ class ApiService {
         console.error('❌ API Error Response:', errorData);
         console.error('❌ Response status:', response.status);
         console.error('❌ Response headers:', Object.fromEntries(response.headers.entries()));
-        
+
         // Handle validation errors from FastAPI
         if (errorData.detail && Array.isArray(errorData.detail)) {
-          const validationErrors = errorData.detail.map((err: any) => `${err.loc?.join('.')}: ${err.msg}`).join(', ');
+          const validationErrors = errorData.detail
+            .map((err: any) => `${err.loc?.join('.')}: ${err.msg}`)
+            .join(', ');
           throw new Error(`Validation Error: ${validationErrors}`);
         }
-        
-        throw new Error(errorData.message || errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
+
+        throw new Error(
+          errorData.message || errorData.detail || `HTTP ${response.status}: ${response.statusText}`
+        );
       }
 
       // Handle different response types
       let data;
       const contentType = response.headers.get('content-type');
       console.log('📄 Response Content-Type:', contentType);
-      
+
       // Always get the response as text first to see what we're dealing with
       const textResponse = await response.text();
       console.log('📄 Raw response text:', textResponse);
-      
+
       if (contentType && contentType.includes('application/json')) {
         try {
           data = JSON.parse(textResponse);
@@ -171,19 +172,19 @@ class ApiService {
           data = { message: textResponse, success: true };
         }
       }
-      
+
       console.log('✅ API Success Response:', data);
       return {
         success: true,
         data: data,
-        message: data.message || 'Success'
+        message: data.message || 'Success',
       };
     } catch (error) {
       console.error(`💥 API Request failed: ${endpoint}`, error);
       console.error('Error details:', {
         message: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
-        name: error instanceof Error ? error.name : 'Unknown'
+        name: error instanceof Error ? error.name : 'Unknown',
       });
       throw error;
     }
@@ -203,7 +204,7 @@ class ApiService {
     const formData = new URLSearchParams();
     formData.append('username', data.username);
     formData.append('password', data.password);
-    
+
     return this.request('/api/v1/auth/login', {
       method: 'POST',
       headers: {
@@ -237,10 +238,10 @@ class ApiService {
     const params = new URLSearchParams();
     if (role) params.append('role', role);
     if (status) params.append('status', status);
-    
+
     const queryString = params.toString();
     const endpoint = `/api/v1/users/${userId}/rides${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request(endpoint);
   }
 
@@ -250,13 +251,13 @@ class ApiService {
     console.log('🔑 Driver ID:', driverId);
     console.log('📦 Request data:', data);
     console.log('🌐 Endpoint: /api/v1/rides/?driver_id=' + driverId);
-    
+
     try {
       const response = await this.request(`/api/v1/rides/?driver_id=${driverId}`, {
         method: 'POST',
         body: JSON.stringify(data),
       });
-      
+
       console.log('📡 createRide API response:', response);
       return response;
     } catch (error) {
@@ -298,20 +299,25 @@ class ApiService {
     queryString.append('max_distance', '2.0'); // 2km default
     queryString.append('page', '1');
     queryString.append('limit', '20');
-    
+
     if (params.max_price) {
       queryString.append('max_price', String(params.max_price));
     }
-    
+
     return this.request(`/api/v1/unified-rides/offers?${queryString.toString()}`);
   }
 
-  static async getDriverRides(driverId: string, status?: string, page = 1, limit = 20): Promise<ApiResponse> {
+  static async getDriverRides(
+    driverId: string,
+    status?: string,
+    page = 1,
+    limit = 20
+  ): Promise<ApiResponse> {
     const params = new URLSearchParams();
     if (status) params.append('status', status);
     params.append('page', String(page));
     params.append('limit', String(limit));
-    
+
     return this.request(`/api/v1/rides/driver/${driverId}?${params.toString()}`);
   }
 
@@ -327,7 +333,11 @@ class ApiService {
     return this.request(`/api/v1/bookings/${bookingId}`);
   }
 
-  static async updateBooking(bookingId: string, passengerId: string, data: any): Promise<ApiResponse> {
+  static async updateBooking(
+    bookingId: string,
+    passengerId: string,
+    data: any
+  ): Promise<ApiResponse> {
     return this.request(`/api/v1/bookings/${bookingId}?passenger_id=${passengerId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -340,12 +350,17 @@ class ApiService {
     });
   }
 
-  static async getPassengerBookings(passengerId: string, status?: string, page = 1, limit = 20): Promise<ApiResponse> {
+  static async getPassengerBookings(
+    passengerId: string,
+    status?: string,
+    page = 1,
+    limit = 20
+  ): Promise<ApiResponse> {
     const params = new URLSearchParams();
     if (status) params.append('status', status);
     params.append('page', String(page));
     params.append('limit', String(limit));
-    
+
     return this.request(`/api/v1/bookings/passenger/${passengerId}?${params.toString()}`);
   }
 
@@ -379,7 +394,7 @@ class ApiService {
         queryString.append(key, String(value));
       }
     });
-    
+
     return this.request(`/api/v1/mapbox/route?${queryString.toString()}`);
   }
 
@@ -393,7 +408,7 @@ class ApiService {
     Object.entries(params).forEach(([key, value]) => {
       queryString.append(key, String(value));
     });
-    
+
     return this.request(`/api/v1/mapbox/eta?${queryString.toString()}`);
   }
 
@@ -403,7 +418,10 @@ class ApiService {
   }
 
   // Real-time Location Endpoints
-  static async updateDriverLocation(driverId: string, data: UpdateLocationRequest): Promise<ApiResponse> {
+  static async updateDriverLocation(
+    driverId: string,
+    data: UpdateLocationRequest
+  ): Promise<ApiResponse> {
     return this.request(`/api/v1/location/update?driver_id=${driverId}`, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -430,12 +448,16 @@ class ApiService {
     });
   }
 
-  static async getChatHistory(rideId: string, limit = 50, beforeMessageId?: string): Promise<ApiResponse> {
+  static async getChatHistory(
+    rideId: string,
+    limit = 50,
+    beforeMessageId?: string
+  ): Promise<ApiResponse> {
     const params = new URLSearchParams({ limit: String(limit) });
     if (beforeMessageId) {
       params.append('before_message_id', beforeMessageId);
     }
-    
+
     return this.request(`/api/v1/chat/ride/${rideId}?${params.toString()}`);
   }
 

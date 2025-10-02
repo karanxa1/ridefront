@@ -228,7 +228,7 @@ class RealtimeLocationService {
             });
           }
         },
-        (error) => {
+        (_error) => {
           reject(new Error('Location access denied'));
         },
         {

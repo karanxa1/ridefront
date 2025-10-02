@@ -28,7 +28,7 @@ MAPBOX_ACCESS_TOKEN={FIREBASE_CONFIG['MAPBOX_TOKEN']}
 
 # Application Configuration
 DEBUG=True
-SECRET_KEY=college-rideshare-backend-secret-key-2024
+SECRET_KEY=college-rideshare-backend-secret-key-2025
 ACCESS_TOKEN_EXPIRE_MINUTES=11520
 
 # CORS Configuration (for development)

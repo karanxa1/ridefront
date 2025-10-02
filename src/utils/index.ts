@@ -6,41 +6,73 @@ interface Location {
 }
 
 // Date utilities
-export const formatDate = (date: Date): string => {
+export const formatDate = (date: Date | string | number | undefined | null): string => {
+  if (!date) return 'N/A';
+
+  const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
+
+  if (isNaN(dateObj.getTime())) {
+    return 'Invalid date';
+  }
+
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
-  }).format(date);
+  }).format(dateObj);
 };
 
-export const formatTime = (date: Date): string => {
+export const formatTime = (date: Date | string | number | undefined | null): string => {
+  if (!date) return 'N/A';
+
+  const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
+
+  if (isNaN(dateObj.getTime())) {
+    return 'Invalid time';
+  }
+
   return new Intl.DateTimeFormat('en-US', {
     hour: '2-digit',
     minute: '2-digit',
-  }).format(date);
+  }).format(dateObj);
 };
 
-export const formatDateTime = (date: Date): string => {
+export const formatDateTime = (date: Date | string | number | undefined | null): string => {
+  if (!date) return 'N/A';
+
+  const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
+
+  if (isNaN(dateObj.getTime())) {
+    return 'Invalid date/time';
+  }
+
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  }).format(date);
+  }).format(dateObj);
 };
 
-export const getRelativeTime = (date: Date): string => {
+export const getRelativeTime = (date: Date | string | number | undefined | null): string => {
+  if (!date) return 'N/A';
+
+  const dateObj = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
+
+  if (isNaN(dateObj.getTime())) {
+    return 'Invalid date';
+  }
+
   const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  
+  const diffInSeconds = Math.floor((now.getTime() - dateObj.getTime()) / 1000);
+
   if (diffInSeconds < 60) return 'Just now';
   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
   if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
   if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
-  
-  return formatDate(date);
+
+  return formatDate(dateObj);
 };
 
 // Validation utilities
@@ -51,7 +83,7 @@ export const validateEmail = (email: string): boolean => {
 
 export const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
-  
+
   if (password.length < 8) {
     errors.push('Password must be at least 8 characters long');
   }
@@ -64,7 +96,7 @@ export const validatePassword = (password: string): { isValid: boolean; errors: 
   if (!/(?=.*\d)/.test(password)) {
     errors.push('Password must contain at least one number');
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors,
@@ -76,12 +108,14 @@ export const calculateDistance = (loc1: Location, loc2: Location): number => {
   const R = 6371; // Earth's radius in kilometers
   const dLat = toRadians(loc2.lat - loc1.lat);
   const dLon = toRadians(loc2.lng - loc1.lng);
-  
-  const a = 
+
+  const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRadians(loc1.lat)) * Math.cos(toRadians(loc2.lat)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  
+    Math.cos(toRadians(loc1.lat)) *
+      Math.cos(toRadians(loc2.lat)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 };
@@ -130,14 +164,17 @@ export const groupBy = <T, K extends keyof any>(
   array: T[],
   key: (item: T) => K
 ): Record<K, T[]> => {
-  return array.reduce((groups, item) => {
-    const groupKey = key(item);
-    if (!groups[groupKey]) {
-      groups[groupKey] = [];
-    }
-    groups[groupKey].push(item);
-    return groups;
-  }, {} as Record<K, T[]>);
+  return array.reduce(
+    (groups, item) => {
+      const groupKey = key(item);
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+      groups[groupKey].push(item);
+      return groups;
+    },
+    {} as Record<K, T[]>
+  );
 };
 
 // Local storage utilities

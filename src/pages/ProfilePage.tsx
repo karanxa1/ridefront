@@ -24,7 +24,7 @@ import { toast } from 'sonner';
 import type { User, VehicleInfo } from '../types';
 
 export function ProfilePage() {
-  const { user, updateProfile, isLoading } = useStore();
+  const { user, updateProfile, isLoading, theme } = useStore();
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
@@ -43,6 +43,7 @@ export function ProfilePage() {
     license_plate: '',
     seats: 4
   });
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -100,26 +101,45 @@ export function ProfilePage() {
     setIsEditing(false);
   };
 
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    setUploadingImage(true);
+    try {
+      // Create a mock URL for the uploaded image
+      const imageUrl = URL.createObjectURL(file);
+      
+      // Update user profile with new image
+      await updateProfile({ profile_pic: imageUrl });
+      toast.success('Profile picture updated successfully');
+    } catch (error) {
+      toast.error('Failed to update profile picture');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex items-center justify-center`}>
         <LoadingSpinner size="lg" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-sm border-b`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <Link to="/" className="flex items-center text-gray-600 hover:text-gray-900">
+              <Link to="/" className={`flex items-center ${theme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
                 <ArrowLeft className="h-5 w-5 mr-2" />
                 <span>Back</span>
               </Link>
-              <h1 className="ml-6 text-xl font-semibold text-gray-900">Profile</h1>
+              <h1 className={`ml-6 text-xl font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Profile</h1>
             </div>
             
             <div className="flex items-center space-x-3">
@@ -127,7 +147,11 @@ export function ProfilePage() {
                 <>
                   <button
                     onClick={handleCancel}
-                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    className={`px-4 py-2 border rounded-lg transition-colors ${
+                      theme === 'dark' 
+                        ? 'text-gray-300 border-gray-600 hover:bg-gray-700' 
+                        : 'text-gray-700 border-gray-300 hover:bg-gray-50'
+                    }`}
                   >
                     <X className="h-4 w-4 mr-2 inline" />
                     Cancel
@@ -135,7 +159,7 @@ export function ProfilePage() {
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center transition-colors"
                   >
                     {saving ? (
                       <LoadingSpinner size="sm" className="mr-2" />
@@ -148,7 +172,7 @@ export function ProfilePage() {
               ) : (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center transition-colors"
                 >
                   <Edit3 className="h-4 w-4 mr-2" />
                   Edit Profile
@@ -162,46 +186,55 @@ export function ProfilePage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
           {/* Profile Header */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-6`}>
             <div className="flex items-center space-x-6">
               <div className="relative">
                 {user.profile_pic ? (
                   <img
                     src={user.profile_pic}
                     alt={user.name}
-                    className="h-24 w-24 rounded-full object-cover"
+                    className="h-24 w-24 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
                   />
                 ) : (
-                  <div className="h-24 w-24 bg-gray-300 rounded-full flex items-center justify-center">
-                    <UserIcon className="h-12 w-12 text-gray-600" />
+                  <div className={`h-24 w-24 ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'} rounded-full flex items-center justify-center border-2 border-gray-200 dark:border-gray-600`}>
+                    <UserIcon className={`h-12 w-12 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`} />
                   </div>
                 )}
                 
                 {isEditing && (
-                  <button className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 hover:bg-blue-700">
+                  <label className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 hover:bg-blue-700 cursor-pointer transition-colors">
                     <Camera className="h-4 w-4" />
-                  </button>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      disabled={uploadingImage}
+                    />
+                  </label>
                 )}
               </div>
               
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-2">
-                  <h2 className="text-2xl font-bold text-gray-900">{user.name}</h2>
+                  <h2 className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{user.name}</h2>
                   <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    user.role === 'driver' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                    user.role === 'driver' 
+                      ? theme === 'dark' ? 'bg-blue-900 text-blue-300' : 'bg-blue-100 text-blue-800'
+                      : theme === 'dark' ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-800'
                   }`}>
                     {user.role === 'driver' ? 'Driver' : 'Passenger'}
                   </div>
                   
                   {user.verified && (
-                    <div className="bg-green-100 text-green-800 px-2 py-1 rounded-full flex items-center">
+                    <div className={`${theme === 'dark' ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-800'} px-2 py-1 rounded-full flex items-center`}>
                       <Shield className="h-3 w-3 mr-1" />
                       <span className="text-xs font-medium">Verified</span>
                     </div>
                   )}
                 </div>
                 
-                <div className="flex items-center space-x-6 text-sm text-gray-600">
+                <div className={`flex items-center space-x-6 text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
                   <div className="flex items-center space-x-1">
                     <Star className="h-4 w-4 text-yellow-400 fill-current" />
                     <span>{formatRating(user.rating || 0)} ({user.total_ratings || 0} reviews)</span>
@@ -224,12 +257,12 @@ export function ProfilePage() {
           </div>
 
           {/* Personal Information */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
+          <div className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-6`}>
+            <h3 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mb-4`}>Personal Information</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                   <UserIcon className="h-4 w-4 inline mr-2" />
                   Full Name
                 </label>
@@ -238,15 +271,19 @@ export function ProfilePage() {
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      theme === 'dark' 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
                   />
                 ) : (
-                  <p className="text-gray-900">{user.name}</p>
+                  <p className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>{user.name}</p>
                 )}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                   <Mail className="h-4 w-4 inline mr-2" />
                   Email
                 </label>
@@ -255,15 +292,19 @@ export function ProfilePage() {
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      theme === 'dark' 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
                   />
                 ) : (
-                  <p className="text-gray-900">{user.email}</p>
+                  <p className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>{user.email}</p>
                 )}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                   <Phone className="h-4 w-4 inline mr-2" />
                   Phone Number
                 </label>
@@ -272,15 +313,19 @@ export function ProfilePage() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      theme === 'dark' 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
                   />
                 ) : (
-                  <p className="text-gray-900">{user.phone || 'Not provided'}</p>
+                  <p className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>{user.phone || 'Not provided'}</p>
                 )}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                   <MapPin className="h-4 w-4 inline mr-2" />
                   Location
                 </label>
@@ -289,16 +334,20 @@ export function ProfilePage() {
                     type="text"
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      theme === 'dark' 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300 text-gray-900'
+                    }`}
                   />
                 ) : (
-                  <p className="text-gray-900">{user.location || 'Not provided'}</p>
+                  <p className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>{user.location || 'Not provided'}</p>
                 )}
               </div>
             </div>
             
             <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                 Bio
               </label>
               {isEditing ? (
@@ -306,16 +355,20 @@ export function ProfilePage() {
                   value={formData.bio}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    theme === 'dark' 
+                      ? 'bg-gray-700 border-gray-600 text-white' 
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
                   placeholder="Tell others about yourself..."
                 />
               ) : (
-                <p className="text-gray-900">{user.bio || 'No bio provided'}</p>
+                <p className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>{user.bio || 'No bio provided'}</p>
               )}
             </div>
             
             <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                 Emergency Contact
               </label>
               {isEditing ? (
@@ -323,26 +376,30 @@ export function ProfilePage() {
                   type="tel"
                   value={formData.emergency_contact}
                   onChange={(e) => setFormData({ ...formData, emergency_contact: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    theme === 'dark' 
+                      ? 'bg-gray-700 border-gray-600 text-white' 
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
                   placeholder="Emergency contact number"
                 />
               ) : (
-                <p className="text-gray-900">{user.emergency_contact || 'Not provided'}</p>
+                <p className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>{user.emergency_contact || 'Not provided'}</p>
               )}
             </div>
           </div>
 
           {/* Vehicle Information (Driver only) */}
           {user.role === 'driver' && (
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-6`}>
+              <h3 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mb-4`}>
                 <Car className="h-5 w-5 inline mr-2" />
                 Vehicle Information
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                     Make
                   </label>
                   {isEditing ? (
@@ -350,15 +407,19 @@ export function ProfilePage() {
                       type="text"
                       value={vehicleData.make}
                       onChange={(e) => setVehicleData({ ...vehicleData, make: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        theme === 'dark' 
+                          ? 'bg-gray-700 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
                     />
                   ) : (
-                    <p className="text-gray-900">{user.vehicle_info?.make || 'Not provided'}</p>
+                    <p className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>{user.vehicle_info?.make || 'Not provided'}</p>
                   )}
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                     Model
                   </label>
                   {isEditing ? (
@@ -366,15 +427,19 @@ export function ProfilePage() {
                       type="text"
                       value={vehicleData.model}
                       onChange={(e) => setVehicleData({ ...vehicleData, model: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        theme === 'dark' 
+                          ? 'bg-gray-700 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
                     />
                   ) : (
-                    <p className="text-gray-900">{user.vehicle_info?.model || 'Not provided'}</p>
+                    <p className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>{user.vehicle_info?.model || 'Not provided'}</p>
                   )}
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                     Year
                   </label>
                   {isEditing ? (
@@ -384,15 +449,19 @@ export function ProfilePage() {
                       onChange={(e) => setVehicleData({ ...vehicleData, year: parseInt(e.target.value) })}
                       min="1990"
                       max={new Date().getFullYear() + 1}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        theme === 'dark' 
+                          ? 'bg-gray-700 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
                     />
                   ) : (
-                    <p className="text-gray-900">{user.vehicle_info?.year || 'Not provided'}</p>
+                    <p className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>{user.vehicle_info?.year || 'Not provided'}</p>
                   )}
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                     Color
                   </label>
                   {isEditing ? (
@@ -400,15 +469,19 @@ export function ProfilePage() {
                       type="text"
                       value={vehicleData.color}
                       onChange={(e) => setVehicleData({ ...vehicleData, color: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        theme === 'dark' 
+                          ? 'bg-gray-700 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
                     />
                   ) : (
-                    <p className="text-gray-900">{user.vehicle_info?.color || 'Not provided'}</p>
+                    <p className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>{user.vehicle_info?.color || 'Not provided'}</p>
                   )}
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                     License Plate
                   </label>
                   {isEditing ? (
@@ -416,29 +489,37 @@ export function ProfilePage() {
                       type="text"
                       value={vehicleData.license_plate}
                       onChange={(e) => setVehicleData({ ...vehicleData, license_plate: e.target.value.toUpperCase() })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        theme === 'dark' 
+                          ? 'bg-gray-700 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
                     />
                   ) : (
-                    <p className="text-gray-900">{user.vehicle_info?.license_plate || 'Not provided'}</p>
+                    <p className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>{user.vehicle_info?.license_plate || 'Not provided'}</p>
                   )}
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                     Available Seats
                   </label>
                   {isEditing ? (
                     <select
                       value={vehicleData.seats}
                       onChange={(e) => setVehicleData({ ...vehicleData, seats: parseInt(e.target.value) })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        theme === 'dark' 
+                          ? 'bg-gray-700 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
+                      }`}
                     >
                       {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
                         <option key={num} value={num}>{num}</option>
                       ))}
                     </select>
                   ) : (
-                    <p className="text-gray-900">{user.vehicle_info?.seats || 'Not provided'}</p>
+                    <p className={theme === 'dark' ? 'text-white' : 'text-gray-900'}>{user.vehicle_info?.seats || 'Not provided'}</p>
                   )}
                 </div>
               </div>
@@ -446,40 +527,52 @@ export function ProfilePage() {
           )}
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+          <div className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow-sm p-6`}>
+            <h3 className={`text-lg font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mb-4`}>Quick Actions</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Link
                 to="/history"
-                className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                className={`flex items-center p-4 border rounded-lg transition-colors ${
+                  theme === 'dark' 
+                    ? 'border-gray-700 hover:bg-gray-700' 
+                    : 'border-gray-200 hover:bg-gray-50'
+                }`}
               >
-                <Clock className="h-5 w-5 text-gray-400 mr-3" />
+                <Clock className={`h-5 w-5 mr-3 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-400'}`} />
                 <div>
-                  <p className="font-medium text-gray-900">Ride History</p>
-                  <p className="text-sm text-gray-600">View past rides</p>
+                  <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Ride History</p>
+                  <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>View past rides</p>
                 </div>
               </Link>
               
               <Link
                 to="/settings"
-                className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                className={`flex items-center p-4 border rounded-lg transition-colors ${
+                  theme === 'dark' 
+                    ? 'border-gray-700 hover:bg-gray-700' 
+                    : 'border-gray-200 hover:bg-gray-50'
+                }`}
               >
-                <Shield className="h-5 w-5 text-gray-400 mr-3" />
+                <Shield className={`h-5 w-5 mr-3 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-400'}`} />
                 <div>
-                  <p className="font-medium text-gray-900">Settings</p>
-                  <p className="text-sm text-gray-600">Privacy & preferences</p>
+                  <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Settings</p>
+                  <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Privacy & preferences</p>
                 </div>
               </Link>
               
               <Link
                 to="/notifications"
-                className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                className={`flex items-center p-4 border rounded-lg transition-colors ${
+                  theme === 'dark' 
+                    ? 'border-gray-700 hover:bg-gray-700' 
+                    : 'border-gray-200 hover:bg-gray-50'
+                }`}
               >
-                <Award className="h-5 w-5 text-gray-400 mr-3" />
+                <Award className={`h-5 w-5 mr-3 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-400'}`} />
                 <div>
-                  <p className="font-medium text-gray-900">Notifications</p>
-                  <p className="text-sm text-gray-600">Manage alerts</p>
+                  <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Notifications</p>
+                  <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Manage alerts</p>
                 </div>
               </Link>
             </div>

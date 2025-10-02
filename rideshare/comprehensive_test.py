@@ -88,7 +88,7 @@ def main():
     results.append(test_endpoint('POST', '/api/v1/rides/', {
         'origin': {'lat': 40.7128, 'lng': -74.0060},
         'destination': {'lat': 40.7589, 'lng': -73.9851},
-        'departure_time': '2024-12-01T10:00:00Z',
+        'departure_time': '2025-12-01T10:00:00Z',
         'seats_available': 3,
         'price_per_seat': 15.0
     }, 200))

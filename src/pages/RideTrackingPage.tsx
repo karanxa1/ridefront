@@ -6,7 +6,6 @@ import {
   Phone, 
   MessageCircle, 
   MapPin, 
-  Clock, 
   Users,
   Car,
   User,
@@ -14,12 +13,12 @@ import {
 } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { LoadingSpinner } from '../components/LoadingSpinner';
-import { formatTime, formatDistance, formatDuration } from '../utils';
+import { formatTime } from '../utils';
 import { toast } from 'sonner';
 import type { Ride, DriverLocation } from '../types/index';
 
 // Mock Mapbox component since we can't use the actual library without API key
-const MapComponent = ({ ride, driverLocation }: { ride: Ride; driverLocation: DriverLocation | null }) => {
+const MapComponent = ({ ride: _ride, driverLocation }: { ride: Ride; driverLocation: DriverLocation | null }) => {
   return (
     <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center relative overflow-hidden">
       {/* Mock map background */}
@@ -241,7 +240,7 @@ export function RideTrackingPage() {
               </div>
               <div className="flex-1">
                 <p className="text-sm text-gray-600">From</p>
-                <p className="font-medium text-gray-900 truncate">{ride.pickup_location.address}</p>
+                <p className="font-medium text-gray-900 truncate">{ride.pickup_location?.address || 'Pickup location'}</p>
               </div>
             </div>
             
@@ -289,10 +288,10 @@ export function RideTrackingPage() {
           ) : (
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
-                {ride.driver.profile_pic ? (
+                {ride.driver?.profile_pic ? (
                   <img
                     src={ride.driver.profile_pic}
-                    alt={ride.driver.name}
+                    alt={ride.driver?.name || 'Driver'}
                     className="h-12 w-12 rounded-full object-cover"
                   />
                 ) : (
@@ -302,11 +301,11 @@ export function RideTrackingPage() {
                 )}
                 
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900">{ride.driver.name}</p>
+                  <p className="font-medium text-gray-900">{ride.driver?.name || 'Driver'}</p>
                   <p className="text-sm text-gray-600">
-                    {ride.vehicle_info.color} {ride.vehicle_info.make} {ride.vehicle_info.model}
+                    {ride.vehicle_info?.color} {ride.vehicle_info?.make} {ride.vehicle_info?.model}
                   </p>
-                  <p className="text-sm text-gray-600">{ride.vehicle_info.license_plate}</p>
+                  <p className="text-sm text-gray-600">{ride.vehicle_info?.license_plate}</p>
                 </div>
                 
                 <div className="flex items-center space-x-2">

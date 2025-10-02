@@ -22,16 +22,18 @@ interface MapboxMapProps {
 const MapboxMap: React.FC<MapboxMapProps> = ({
   center = [0, 0],
   zoom = 13,
-  onLocationSelect,
+  onLocationSelect: _onLocationSelect,
   markers = [],
   showUserLocation = true,
   onMapClick,
-  className = "w-full h-96"
+  className = 'w-full h-96',
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(
+    null
+  );
 
   // Initialize map
   useEffect(() => {
@@ -44,7 +46,7 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: center,
-        zoom: zoom
+        zoom: zoom,
       });
 
       // Add navigation controls
@@ -79,7 +81,7 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
         (position) => {
           const { latitude, longitude } = position.coords;
           setUserLocation({ latitude, longitude });
-          
+
           if (map.current) {
             map.current.setCenter([longitude, latitude]);
             map.current.setZoom(15);
@@ -98,13 +100,13 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
 
     // Clear existing markers
     const existingMarkers = document.querySelectorAll('.mapbox-marker');
-    existingMarkers.forEach(marker => marker.remove());
+    existingMarkers.forEach((marker) => marker.remove());
 
     // Add user location marker
     if (userLocation) {
       const userMarker = new mapboxgl.Marker({
         color: '#3B82F6',
-        scale: 1.2
+        scale: 1.2,
       })
         .setLngLat([userLocation.longitude, userLocation.latitude])
         .addTo(map.current);
@@ -127,14 +129,15 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
       markerElement.style.width = '30px';
       markerElement.style.height = '30px';
       markerElement.style.borderRadius = '50%';
-      markerElement.style.backgroundColor = marker.color || (marker.isDriver ? '#10B981' : '#EF4444');
+      markerElement.style.backgroundColor =
+        marker.color || (marker.isDriver ? '#10B981' : '#EF4444');
       markerElement.style.border = '3px solid white';
       markerElement.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
       markerElement.style.cursor = 'pointer';
 
       const mapMarker = new mapboxgl.Marker(markerElement)
         .setLngLat([marker.longitude, marker.latitude])
-        .addTo(map.current);
+        .addTo(map.current!);
 
       if (marker.title) {
         mapMarker.setPopup(
@@ -165,4 +168,3 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
 };
 
 export default MapboxMap;
-

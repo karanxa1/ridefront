@@ -2,14 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { 
   ArrowLeft, 
-  MapPin, 
-  Navigation, 
-  Users, 
-  Clock, 
   Car,
   RefreshCw,
   AlertCircle,
-  CheckCircle,
   Star
 } from 'lucide-react';
 import MapboxMap from '../components/MapboxMap';
@@ -33,10 +28,10 @@ interface Driver {
 }
 
 export function LiveTrackingPage() {
-  const { rideId } = useParams<{ rideId: string }>();
+  const { rideId: _rideId } = useParams<{ rideId: string }>();
   const { user } = useStore();
   const [currentLocation, setCurrentLocation] = useState<LocationData | null>(null);
-  const [destination, setDestination] = useState<LocationData | null>(null);
+  const [_destination, _setDestination] = useState<LocationData | null>(null);
   const [nearbyDrivers, setNearbyDrivers] = useState<Driver[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLocationPermissionGranted, setIsLocationPermissionGranted] = useState(false);

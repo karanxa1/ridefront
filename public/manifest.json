@@ -1,0 +1,50 @@
+{
+  "name": "RideFront - College Ride Sharing",
+  "short_name": "RideFront",
+  "description": "A modern ride-sharing application for college students to connect and share rides efficiently",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "travel",
+    "lifestyle",
+    "navigation"
+  ],
+  "shortcuts": [
+    {
+      "name": "Find a Ride",
+      "short_name": "Find Ride",
+      "description": "Search for available rides",
+      "url": "/search"
+    },
+    {
+      "name": "Offer a Ride",
+      "short_name": "Offer Ride",
+      "description": "Create a new ride offer",
+      "url": "/create-ride"
+    },
+    {
+      "name": "My Rides",
+      "short_name": "My Rides",
+      "description": "View your ride history",
+      "url": "/history"
+    }
+  ],
+  "prefer_related_applications": false,
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ]
+}

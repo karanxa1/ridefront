@@ -3,10 +3,9 @@ College Ride-Share App Backend
 Zero-Budget FastAPI Backend with Firebase Integration
 """
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.responses import JSONResponse
 import uvicorn
 from contextlib import asynccontextmanager
 
@@ -31,7 +30,7 @@ app = FastAPI(
     version=settings.VERSION,
     description=settings.DESCRIPTION,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Set up CORS
@@ -62,10 +61,7 @@ if settings.BACKEND_CORS_ORIGINS:
         allowed_hosts.append(hostname)
 
     if allowed_hosts:
-        app.add_middleware(
-            TrustedHostMiddleware,
-            allowed_hosts=allowed_hosts
-        )
+        app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
 # Global exception handlers
 app.add_exception_handler(ValidationException, validation_exception_handler)
@@ -83,7 +79,7 @@ async def root():
     return {
         "message": "College Ride-Share API",
         "docs": "/docs",
-        "version": settings.VERSION
+        "version": settings.VERSION,
     }
 
 
@@ -93,9 +89,5 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 
 if __name__ == "__main__":
     uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=settings.DEBUG,
-        log_level="info"
+        "main:app", host="0.0.0.0", port=8000, reload=settings.DEBUG, log_level="info"
     )

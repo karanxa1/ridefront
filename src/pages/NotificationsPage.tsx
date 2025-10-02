@@ -10,7 +10,6 @@ import {
   CheckCircle, 
   Clock, 
   Trash2, 
-  MoreVertical,
   Filter,
   RefreshCw,
   Settings,
@@ -19,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useStore } from '../hooks/useStore';
 import { LoadingSpinner } from '../components/LoadingSpinner';
-import { formatDate, formatTime, getRelativeTime } from '../utils';
+import { getRelativeTime } from '../utils';
 import { toast } from 'sonner';
 
 interface Notification {
@@ -41,14 +40,14 @@ interface Notification {
 type FilterType = 'all' | 'unread' | 'ride_update' | 'booking' | 'message' | 'review' | 'system';
 
 export function NotificationsPage() {
-  const { user, isLoading } = useStore();
+  const { user: _user, isLoading } = useStore();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filteredNotifications, setFilteredNotifications] = useState<Notification[]>([]);
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const [showFilters, setShowFilters] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedNotifications, setSelectedNotifications] = useState<string[]>([]);
-  const [showActions, setShowActions] = useState(false);
+  const [_showActions, _setShowActions] = useState(false);
 
   // Mock notifications data
   const mockNotifications: Notification[] = [
@@ -207,7 +206,7 @@ export function NotificationsPage() {
       prev.filter(n => !selectedNotifications.includes(n.id))
     );
     setSelectedNotifications([]);
-    setShowActions(false);
+    _setShowActions(false);
     toast.success(`${selectedNotifications.length} notifications deleted`);
   };
 

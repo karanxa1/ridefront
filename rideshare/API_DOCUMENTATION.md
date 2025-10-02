@@ -113,7 +113,7 @@ GET /api/v1/auth/profile/{user_id}
   "role": "passenger",
   "profile_pic": "https://...",
   "rating": 4.5,
-  "created_at": "2024-01-01T00:00:00Z"
+  "created_at": "2025-01-01T00:00:00Z"
 }
 ```
 
@@ -177,7 +177,7 @@ POST /api/v1/rides/?driver_id={driver_id}
     "lat": 40.7589,
     "lng": -73.9851
   },
-  "departure_time": "2024-12-01T10:00:00Z",
+  "departure_time": "2025-12-01T10:00:00Z",
   "seats_available": 3,
   "price_per_seat": 15.0
 }
@@ -197,11 +197,11 @@ GET /api/v1/rides/{ride_id}
   "driver_rating": 4.8,
   "origin": {"lat": 40.7128, "lng": -74.0060},
   "destination": {"lat": 40.7589, "lng": -73.9851},
-  "departure_time": "2024-12-01T10:00:00Z",
+  "departure_time": "2025-12-01T10:00:00Z",
   "seats_available": 2,
   "price_per_seat": 15.0,
   "status": "active",
-  "created_at": "2024-01-01T00:00:00Z"
+  "created_at": "2025-01-01T00:00:00Z"
 }
 ```
 
@@ -217,7 +217,7 @@ DELETE /api/v1/rides/{ride_id}?driver_id={driver_id}
 
 #### 5. Search Rides (Passengers)
 ```http
-GET /api/v1/rides/search/?origin_lat=40.7128&origin_lng=-74.0060&destination_lat=40.7589&destination_lng=-73.9851&departure_date=2024-12-01&max_price=20&min_seats=1
+GET /api/v1/rides/search/?origin_lat=40.7128&origin_lng=-74.0060&destination_lat=40.7589&destination_lng=-73.9851&departure_date=2025-12-01&max_price=20&min_seats=1
 ```
 
 #### 6. Get Driver Rides

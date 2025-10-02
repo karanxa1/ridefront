@@ -13,7 +13,6 @@ import {
   User,
   Car,
   Navigation,
-  ChevronRight,
   Loader2,
   Map
 } from 'lucide-react';
@@ -469,7 +468,7 @@ export function RideSearchPage() {
                   <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     type="time"
-                    value={filters.departure_time ? filters.departure_time.toTimeString().split(' ')[0].slice(0, 5) : ''}
+                    value={filters.departure_time ? filters.departure_time.toTimeString().split(' ')[0]?.slice(0, 5) || '' : ''}
                     onChange={(e) => handleFilterChange('departure_time', e.target.value)}
                     className="w-full pl-10 pr-4 py-4 bg-gray-800 border border-gray-600 rounded-xl text-white focus:ring-2 focus:ring-white focus:border-transparent transition-colors"
                   />
@@ -588,7 +587,7 @@ export function RideSearchPage() {
                         <div className="flex items-center space-x-2 mb-3">
                           <div className="flex items-center space-x-2 text-white">
                             <MapPin className="h-4 w-4 text-gray-400" />
-                            <span className="font-medium">{ride.pickup_location.address}</span>
+                            <span className="font-medium">{ride.pickup_location?.address || 'Pickup location'}</span>
                           </div>
                           <span className="text-gray-400">→</span>
                           <div className="flex items-center space-x-2 text-white">
@@ -609,16 +608,16 @@ export function RideSearchPage() {
                           </div>
                           <div className="flex items-center">
                             <Car className="h-4 w-4 mr-1" />
-                            {ride.vehicle_info.make} {ride.vehicle_info.model}
+                            {ride.vehicle_info?.make} {ride.vehicle_info?.model}
                           </div>
                         </div>
 
                         {/* Driver Info */}
                         <div className="flex items-center space-x-3">
-                          {ride.driver.profile_pic ? (
+                          {ride.driver?.profile_pic ? (
                             <img
                               src={ride.driver.profile_pic}
-                              alt={ride.driver.name}
+                              alt={ride.driver?.name || 'Driver'}
                               className="h-10 w-10 rounded-full object-cover"
                             />
                           ) : (
@@ -627,7 +626,7 @@ export function RideSearchPage() {
                             </div>
                           )}
                           <div>
-                            <p className="font-medium text-white">{ride.driver.name}</p>
+                            <p className="font-medium text-white">{ride.driver?.name || 'Driver'}</p>
                             <div className="flex items-center">
                               <Star className="h-4 w-4 text-yellow-400 mr-1" />
                               <span className="text-sm text-gray-300">

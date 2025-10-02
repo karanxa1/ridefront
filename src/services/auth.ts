@@ -14,15 +14,15 @@ export class AuthService {
         email: credentials.email,
         password: credentials.password,
         name: credentials.name,
-        role: credentials.role
+        phone: credentials.phone,
       };
-      
+
       const response: ApiResponse = await ApiService.signup(signupData);
-      
+
       if (response.error) {
         throw new Error(response.error);
       }
-      
+
       // Store auth token if provided
       if (response.data?.token) {
         this.authToken = response.data.token;
@@ -31,13 +31,13 @@ export class AuthService {
           localStorage.setItem('authToken', this.authToken);
         }
       }
-      
+
       // Store user data
       if (response.data?.user) {
         this.currentUser = response.data.user;
         localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
       }
-      
+
       return this.currentUser || response.data;
     } catch (error) {
       throw new Error(getErrorMessage(error));
@@ -49,15 +49,15 @@ export class AuthService {
     try {
       const loginData: LoginRequest = {
         username: credentials.email, // API expects username field
-        password: credentials.password
+        password: credentials.password,
       };
-      
+
       const response: ApiResponse = await ApiService.login(loginData);
-      
+
       if (response.error) {
         throw new Error(response.error);
       }
-      
+
       // Store auth token
       if (response.data?.access_token) {
         this.authToken = response.data.access_token;
@@ -66,7 +66,7 @@ export class AuthService {
           localStorage.setItem('authToken', this.authToken);
         }
       }
-      
+
       // Get user profile data using the user_id from login response
       if (response.data?.user_id) {
         console.log('🔍 Getting user profile for user_id:', response.data.user_id);
@@ -82,7 +82,7 @@ export class AuthService {
       } else {
         console.error('❌ No user_id in login response:', response.data);
       }
-      
+
       console.log('🔐 signIn returning:', this.currentUser || response.data);
       return this.currentUser || response.data;
     } catch (error) {
@@ -106,7 +106,7 @@ export class AuthService {
       // Clear local storage
       localStorage.removeItem('authToken');
       localStorage.removeItem('currentUser');
-      
+
       // Clear service state
       this.authToken = null;
       this.currentUser = null;
@@ -124,36 +124,36 @@ export class AuthService {
   // Get current user data
   static async getCurrentUser(): Promise<User | null> {
     console.log('getCurrentUser called');
-    
+
     // Check if user is already loaded
     if (this.currentUser) {
       console.log('User already loaded:', this.currentUser);
       return this.currentUser;
     }
-    
+
     // Try to load from localStorage
     const storedUser = localStorage.getItem('currentUser');
     const storedToken = localStorage.getItem('authToken');
-    
+
     console.log('Stored user:', storedUser ? 'exists' : 'null');
     console.log('Stored token:', storedToken ? 'exists' : 'null');
-    
+
     if (storedUser && storedToken) {
       try {
         this.currentUser = JSON.parse(storedUser);
         this.authToken = storedToken;
         ApiService.setAuthToken(this.authToken);
-        
+
         console.log('Parsed user:', this.currentUser);
         console.log('Set auth token:', this.authToken);
-        
+
         // Verify token is still valid by fetching fresh user data
         if (this.currentUser && this.currentUser.uid) {
           try {
             console.log('Fetching user profile for uid:', this.currentUser.uid);
             const response = await ApiService.getUserProfile(this.currentUser.uid);
             console.log('User profile response:', response);
-            
+
             if (response.data) {
               this.currentUser = response.data;
               localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
@@ -165,7 +165,7 @@ export class AuthService {
             console.log('Token validation failed, but keeping stored user data');
           }
         }
-        
+
         return this.currentUser;
       } catch (error) {
         console.error('Error validating stored user:', error);
@@ -174,7 +174,7 @@ export class AuthService {
         return null;
       }
     }
-    
+
     console.log('No stored user or token found');
     return null;
   }
@@ -183,11 +183,11 @@ export class AuthService {
   static async updateProfile(userId: string, updates: Partial<User>): Promise<void> {
     try {
       const response = await ApiService.updateUser(userId, updates);
-      
+
       if (response.error) {
         throw new Error(response.error);
       }
-      
+
       // Update local user data if this is the current user
       if (this.currentUser && this.currentUser.uid === userId) {
         this.currentUser = { ...this.currentUser, ...updates };
@@ -211,33 +211,37 @@ export class AuthService {
   // Auth state observer (simplified for API-based auth)
   static onAuthStateChanged(callback: (user: User | null) => void): () => void {
     console.log('onAuthStateChanged called');
-    
+
     // For API-based auth, we'll just call the callback with current user
     // In a real implementation, you might want to set up periodic token validation
-    this.getCurrentUser().then((user) => {
-      console.log('getCurrentUser resolved with:', user);
-      callback(user);
-    }).catch((error) => {
-      console.error('getCurrentUser failed:', error);
-      callback(null);
-    });
-    
+    this.getCurrentUser()
+      .then((user) => {
+        console.log('getCurrentUser resolved with:', user);
+        callback(user);
+      })
+      .catch((error) => {
+        console.error('getCurrentUser failed:', error);
+        callback(null);
+      });
+
     // Also set up a listener for storage changes (when user logs in/out in another tab)
     const handleStorageChange = (e: StorageEvent) => {
       console.log('Storage change detected:', e.key);
       if (e.key === 'currentUser' || e.key === 'authToken') {
-        this.getCurrentUser().then((user) => {
-          console.log('Storage change - getCurrentUser resolved with:', user);
-          callback(user);
-        }).catch((error) => {
-          console.error('Storage change - getCurrentUser failed:', error);
-          callback(null);
-        });
+        this.getCurrentUser()
+          .then((user) => {
+            console.log('Storage change - getCurrentUser resolved with:', user);
+            callback(user);
+          })
+          .catch((error) => {
+            console.error('Storage change - getCurrentUser failed:', error);
+            callback(null);
+          });
       }
     };
-    
+
     window.addEventListener('storage', handleStorageChange);
-    
+
     // Return unsubscribe function
     return () => {
       window.removeEventListener('storage', handleStorageChange);
