@@ -54,6 +54,8 @@ export default defineConfig({
     target: "es2020",
     // Chunk size warning limit
     chunkSizeWarningLimit: 1000,
+    // Ensure compatibility with Vercel
+    ssr: false,
     // Rollup options
     rollupOptions: {
       output: {
