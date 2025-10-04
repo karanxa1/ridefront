@@ -60,10 +60,12 @@ if settings.BACKEND_CORS_ORIGINS:
 
         allowed_hosts.append(hostname)
     
-    # Add Heroku domains
+    # Add Heroku and Vercel domains
     allowed_hosts.extend([
         "sihrun-8291e677bb29.herokuapp.com",
-        "*.herokuapp.com"
+        "*.herokuapp.com",
+        "ridefront.vercel.app",
+        "*.vercel.app"
     ])
 
     if allowed_hosts:

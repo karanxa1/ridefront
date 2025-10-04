@@ -28,6 +28,8 @@ class Settings(BaseSettings):
         "http://localhost:5174",  # Vite dev server (alternative port)
         "https://sihrun-8291e677bb29.herokuapp.com",  # Heroku app
         "https://*.herokuapp.com",  # All Heroku apps
+        "https://ridefront.vercel.app",  # Vercel frontend
+        "https://*.vercel.app",  # All Vercel apps
     ]
 
     # Firebase Configuration
