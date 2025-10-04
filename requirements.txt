@@ -11,6 +11,3 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 aiofiles==23.2.1
 gunicorn==21.2.0
-firebase-admin==6.2.0
-firebase-functions==4.2.1
-firebase-admin==6.2.0   
