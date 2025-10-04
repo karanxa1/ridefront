@@ -150,7 +150,7 @@ export function validateEnv(): ValidationResult {
  */
 export function getEnvConfig(): EnvConfig {
   return {
-    VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
+    VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://sihrun-8291e677bb29.herokuapp.com',
     VITE_MAPBOX_TOKEN: import.meta.env.VITE_MAPBOX_TOKEN || '',
     VITE_FIREBASE_API_KEY: import.meta.env.VITE_FIREBASE_API_KEY || '',
     VITE_FIREBASE_AUTH_DOMAIN: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',

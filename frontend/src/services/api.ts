@@ -1,5 +1,5 @@
 // API Service for backend communication
-// Base URL: http://localhost:8000
+// Base URL: https://sihrun-8291e677bb29.herokuapp.com
 
 // Types for API requests and responses
 export interface ApiResponse<T = any> {
@@ -62,7 +62,7 @@ interface SubmitReviewRequest {
 }
 
 class ApiService {
-  private static readonly BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  private static readonly BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://sihrun-8291e677bb29.herokuapp.com';
   private static authToken: string | null = null;
 
   // Set authentication token
