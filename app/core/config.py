@@ -26,6 +26,8 @@ class Settings(BaseSettings):
         "http://localhost:3000",  # React dev server
         "http://localhost:5173",  # Vite dev server
         "http://localhost:5174",  # Vite dev server (alternative port)
+        "https://sihrun-8291e677bb29.herokuapp.com",  # Heroku app
+        "https://*.herokuapp.com",  # All Heroku apps
     ]
 
     # Firebase Configuration

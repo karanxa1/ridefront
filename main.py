@@ -59,6 +59,12 @@ if settings.BACKEND_CORS_ORIGINS:
             hostname = hostname.split(":")[0]
 
         allowed_hosts.append(hostname)
+    
+    # Add Heroku domains
+    allowed_hosts.extend([
+        "sihrun-8291e677bb29.herokuapp.com",
+        "*.herokuapp.com"
+    ])
 
     if allowed_hosts:
         app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
