@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../hooks/useStore';
 import { MapPin, Car, Users, Clock, IndianRupee, Navigation, Map, User, History, Bell, ChevronDown, LogOut, Settings } from 'lucide-react';
 
 const UnifiedHomePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, isLoading, theme, logout } = useStore();
+  const { user, isAuthenticated, isLoading, theme, signOut } = useStore();
   const [currentLocation, setCurrentLocation] = useState<{
     latitude: number;
     longitude: number;
@@ -97,7 +97,7 @@ const UnifiedHomePage: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await logout();
+      await signOut();
       navigate('/login');
     } catch (error) {
       console.error('Error logging out:', error);
