@@ -79,7 +79,11 @@ window.addEventListener('error', (event) => {
   // Ignore specific external errors
   if (event.message && (
     event.message.includes('recorder is not defined') ||
-    event.message.includes('ResizeObserver loop')
+    event.message.includes('ResizeObserver loop') ||
+    event.message.includes('webkitAudioContext') ||
+    event.message.includes('AudioContext') ||
+    event.message.includes('MediaRecorder') ||
+    event.message.includes('getUserMedia')
   )) {
     event.preventDefault();
     return;
@@ -103,7 +107,48 @@ window.addEventListener('unhandledrejection', (event) => {
 if (typeof window !== 'undefined') {
   // Create safe fallbacks for common external variables
   if (typeof (window as any).recorder === 'undefined') {
-    (window as any).recorder = null;
+    (window as any).recorder = {
+      start: () => Promise.resolve(),
+      stop: () => Promise.resolve(),
+      pause: () => Promise.resolve(),
+      resume: () => Promise.resolve(),
+      isRecording: false,
+      ondataavailable: null,
+      onstart: null,
+      onstop: null,
+      onpause: null,
+      onresume: null,
+      onerror: null
+    };
+  }
+  
+  // Add other common external variables that might be undefined
+  if (typeof (window as any).webkitAudioContext === 'undefined') {
+    (window as any).webkitAudioContext = null;
+  }
+  
+  if (typeof (window as any).AudioContext === 'undefined') {
+    (window as any).AudioContext = null;
+  }
+  
+  // Add MediaRecorder fallback
+  if (typeof (window as any).MediaRecorder === 'undefined') {
+    (window as any).MediaRecorder = class MockMediaRecorder {
+      constructor() {}
+      start() {}
+      stop() {}
+      pause() {}
+      resume() {}
+      requestData() {}
+    };
+  }
+  
+  // Add getUserMedia fallback
+  if (typeof navigator !== 'undefined' && typeof navigator.mediaDevices === 'undefined') {
+    (navigator as any).mediaDevices = {
+      getUserMedia: () => Promise.reject(new Error('getUserMedia not supported')),
+      enumerateDevices: () => Promise.resolve([])
+    };
   }
 }
 
