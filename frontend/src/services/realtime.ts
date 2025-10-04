@@ -206,7 +206,8 @@ class RealtimeLocationService {
           
           try {
             // Get address from coordinates
-            const response = await fetch('/api/v1/location/current-location', {
+            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://sihrun-8291e677bb29.herokuapp.com';
+            const response = await fetch(`${apiBaseUrl}/api/v1/location/current-location`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -233,8 +234,8 @@ class RealtimeLocationService {
         },
         {
           enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 300000 // 5 minutes
+          timeout: 15000,
+          maximumAge: 60000 // 1 minute for better accuracy
         }
       );
     });

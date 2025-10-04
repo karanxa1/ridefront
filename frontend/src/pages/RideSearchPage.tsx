@@ -88,24 +88,31 @@ export function RideSearchPage() {
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
           enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 300000 // 5 minutes
+          timeout: 15000,
+          maximumAge: 60000 // 1 minute for better accuracy
         });
       });
 
       const { latitude, longitude } = position.coords;
 
-      // Get address from coordinates using Mapbox directly
-      const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
-      const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxToken}`
-      );
+      // Get address from coordinates using backend
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://sihrun-8291e677bb29.herokuapp.com';
+      const response = await fetch(`${apiBaseUrl}/api/v1/location/current-location`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          latitude,
+          longitude
+        }),
+      });
       
       const data = await response.json();
       
       let address = `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
-      if (data.features && data.features.length > 0) {
-        address = data.features[0].place_name;
+      if (data.address) {
+        address = data.address;
       }
 
       setFilters(prev => ({ ...prev, pickup_location: { lat: 0, lng: 0, address } }));
